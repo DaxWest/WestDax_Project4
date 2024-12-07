@@ -21,6 +21,16 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     '''
     sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
 
+    #Gaussian wave packet as time t=0
+    phi_init_cond = (1/np.sqrt(sigma0 * np.sqrt(np.pi))) * (np.exp(i * k0 * x)) * (np.exp(-(x-x0)**2)/(2 * sigma0**2))
+    if method == 'ftcs':
+        #FTCS method, eqn: 9.32
+        phi_n_1 = (np.identity() - (i * tau / h_bar) * H) * phi_n
+
+    if method == 'crank':
+        #Crank method, eqn: 9.40
+        phi_n_1 = (np.identity() + (i * tau / (2*h_bar)) * H)**(-1) * (np.identity() - (i * tau / (2*h_bar)) * H) * phi_n
+
     #intitializing these for now, they will contain more information later
     phi_x = 1
     phi_t = 1
