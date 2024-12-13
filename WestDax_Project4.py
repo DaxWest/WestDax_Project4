@@ -9,8 +9,26 @@ t_init = 0
 
 #from lab 10
 def make_tridiagonal(N, b, d, a):
+    '''
+
+    :param N:
+    :param b:
+    :param d:
+    :param a:
+    :return:
+    '''
     matrix = d*np.identity(N)+a*np.diagflat(np.ones(N-1),1)+b*np.diagflat(np.ones(N-1),-1)
     return matrix
+
+#from lab 10
+def spectral_radius(matrix):
+    '''
+
+    :param A:
+    :return:
+    '''
+    eigen = np.linalg.eig(A)
+    return np.max(np.abs(eigen[0]))
 
 def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=[10, 0, 0.5]):
     '''
@@ -28,7 +46,7 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
     x_i = np.linspace(-length/2, length/2, nspace, endpoint=False)
     #Gaussian wave packet as time t=0
-    phi_init_cond = (1/np.sqrt(sigma0 * np.sqrt(np.pi))) * (np.exp(1j * k0 * x_i)) * (np.exp(-(x_i-x0)**2)/(2 * sigma0**2))
+    psi_init_cond = (1/np.sqrt(sigma0 * np.sqrt(np.pi))) * (np.exp(1j * k0 * x_i)) * (np.exp(-(x_i-x0)**2)/(2 * sigma0**2))
     if method == 'ftcs':
         #FTCS method, eqn: 9.32
         phi_n_1 = (np.identity() - (1j * tau / h_bar) * H) * phi_n
