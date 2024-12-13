@@ -109,18 +109,40 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
 def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi_plot', 'prob_plot']):
     ''''''
 
-    psi, x_pos, t_val, prob = sch_sol[0], sch_sol[1], sch_sol[2], sch_sol[3]
+    psi, x_pos, t_val, prob = np.real(sch_sol[0]), sch_sol[1], sch_sol[2], np.real(sch_sol[3])
+    enum = len(sch_sol[0])/5
 
     if output[0] == 'psi':
         #this is the real portion
         figure1 = plt.figure()
+        for i,T in enumerate(t_val):
+            if i % enum == 0:
+                plt.plot(x_pos, psi[i])
+        plt.title('Test')
+        plt.xlabel('Test')
+        plt.ylabel('Test')
+
         if save[0] == True:
             plt.savefig(f'{file_name[0]}.png')
 
+        plt.show()
+        plt.close()
+
     elif output[1] == 'prob':
         #probablity density
+        figure2 = plt.figure()
+        for i,T in enumerate(t_val):
+            if i % enum == 0:
+                plt.plot(x_pos, prob[i])
+        plt.title('Test')
+        plt.xlabel('Test')
+        plt.ylabel('Test')
+
         if save[1] == True:
             plt.savefig(f'{file_name[1]}.png')
+
+        plt.show()
+        plt.close()
 
     else:
         return 'No figures produced.'
@@ -128,10 +150,10 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
     return 'Figure(s) saved under given name as png.'
 
 #user inputs
-nspace = int(input('Choose the number of spatial grid points to be used (function works for nspace = 500): '))
-ntime = int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
-tau = float(input('Choose time step to be used (function works for tau = 0.1): '))
-length = int(input('Choose width of solution (function works for length = 200): '))
+nspace = 500 #int(input('Choose the number of spatial grid points to be used (function works for nspace = 500): '))
+ntime = 500 #int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
+tau = 0.01 #float(input('Choose time step to be used (function works for tau = 0.01): '))
+length = 200 #int(input('Choose width of solution (function works for length = 200): '))
 
 method_choice = str(input('Choose a solution method- 1. FTCS, 2. Crank-Nicholson: '))
 if method_choice == 1 or 'ftcs' in method_choice.lower():
@@ -166,3 +188,5 @@ for i in range(2):
         file_choice = str(input(f'Enter desired file name: '))
         file_name[i] = file_choice
 
+schrodinger_solution = sch_eqn(nspace, ntime, tau, method, length)
+plotting = sch_plot(schrodinger_solution, output, save, file_name)
