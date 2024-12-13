@@ -7,6 +7,11 @@ h_bar = 1
 m = 1/2
 t_init = 0
 
+#from lab 10
+def make_tridiagonal(N, b, d, a):
+    matrix = d*np.identity(N)+a*np.diagflat(np.ones(N-1),1)+b*np.diagflat(np.ones(N-1),-1)
+    return matrix
+
 def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=[10, 0, 0.5]):
     '''
 
@@ -19,17 +24,18 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     :param wparam: list of parameters for initial conditions in the form [sigma0, x0, k0]
     :return: a 2D array containing phi_x, phi_t and, prob which are all 1D arrays
     '''
-    sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
 
+    sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
+    x_i = np.linspace(-length/2, length/2, nspace, endpoint=False)
     #Gaussian wave packet as time t=0
-    phi_init_cond = (1/np.sqrt(sigma0 * np.sqrt(np.pi))) * (np.exp(i * k0 * x)) * (np.exp(-(x-x0)**2)/(2 * sigma0**2))
+    phi_init_cond = (1/np.sqrt(sigma0 * np.sqrt(np.pi))) * (np.exp(1j * k0 * x_i)) * (np.exp(-(x_i-x0)**2)/(2 * sigma0**2))
     if method == 'ftcs':
         #FTCS method, eqn: 9.32
-        phi_n_1 = (np.identity() - (i * tau / h_bar) * H) * phi_n
+        phi_n_1 = (np.identity() - (1j * tau / h_bar) * H) * phi_n
 
     if method == 'crank':
         #Crank method, eqn: 9.40
-        phi_n_1 = (np.identity() + (i * tau / (2*h_bar)) * H)**(-1) * (np.identity() - (i * tau / (2*h_bar)) * H) * phi_n
+        phi_n_1 = (np.identity() + (1j * tau / (2*h_bar)) * H)**(-1) * (np.identity() - (1j * tau / (2*h_bar)) * H) * phi_n
 
     #intitializing these for now, they will contain more information later
     phi_x = 1
