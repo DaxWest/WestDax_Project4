@@ -106,28 +106,63 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     eqn_sol = [psi, psi_x, psi_t, prob]
     return eqn_sol
 
-def sch_plot(sch_sol, output=['psi', 'prob'], save=[False, False]):
-    '''
-    :param sch_sol: the solution to the schrodinger equation in a list of arrays (psi, psi_x, psi_t, prob)
-    :param output: takes a str ('psi' or 'prob') which designates the output of the function
-    :param save: allows the user to choose to save the figure when set as True. Default False.
-    :return: psi (plot of the real part of the schrodinger function) or prob (plot of the particle probability density)
-    '''
+def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi_plot', 'prob_plot']):
+    ''''''
 
     psi, x_pos, t_val, prob = sch_sol[0], sch_sol[1], sch_sol[2], sch_sol[3]
 
     if output[0] == 'psi':
         #this is the real portion
+        figure1 = plt.figure()
         if save[0] == True:
-            figure1 = plt.savefig()
+            plt.savefig(f'{file_name[0]}.png')
 
     elif output[1] == 'prob':
         #probablity density
         if save[1] == True:
-            figure2 = plt.savefig()
+            plt.savefig(f'{file_name[1]}.png')
 
     else:
-        return 'No figure produced.'
+        return 'No figures produced.'
 
     return 'Figure(s) saved under given name as png.'
+
+#user inputs
+nspace = int(input('Choose the number of spatial grid points to be used (function works for nspace = 500): '))
+ntime = int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
+tau = float(input('Choose time step to be used (function works for tau = 0.1): '))
+length = int(input('Choose width of solution (function works for length = 200): '))
+
+method_choice = str(input('Choose a solution method- 1. FTCS, 2. Crank-Nicholson: '))
+if method_choice == 1 or 'ftcs' in method_choice.lower():
+    method = 'ftcs'
+elif method_choice == 2 or 'crank' in method_choice.lower():
+    method = 'crank'
+else:
+    method = method_choice
+
+output = ['psi', 'prob']
+for i in range(2):
+    choices = ['psi', 'prob']
+    output_choice = str(input(f'Do you wish to make a plot for {choices[i]} (Y/N)? '))
+    if output_choice.lower() == 'y':
+        output[i] = choices[i]
+    else:
+        output[i] = 'none'
+
+save = [False, False]
+if output[0] == 'psi' or output[1] == 'prob':
+    for i in range(2):
+        choices = ['psi', 'prob']
+        save_choice = str(input(f'Do you wish to save the plot for {choices[i]} (Y/N)?'))
+        if save_choice.lower() == 'y':
+            save[i] = True
+        else:
+            save[i] = False
+
+file_name=['psi_plot', 'prob_plot']
+for i in range(2):
+    if save[i] == True:
+        file_choice = str(input(f'Enter desired file name: '))
+        file_name[i] = file_choice
 
