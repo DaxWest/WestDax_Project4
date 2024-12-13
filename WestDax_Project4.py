@@ -75,13 +75,28 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
 
     if method == 'ftcs':
         H = (1j * tau / h_bar) * make_tridiagonal(nspace, H_const, (1 - (2 * H_const)), H_const)
-        #FTCS method, eqn: 9.32
-        psi_n_1 = (identity - (1j * tau / h_bar) * H) * psi_n
+        coeff_ftcs = identity - H
 
-    if method == 'crank':
-        H = make_tridiagonal(nspace, H_const, (-2 * H_const), H_const)
+        #this method needs a stability check
+        if spectral_radius(coeff_ftcs) > 1:
+            return 'Solution will not be stable.'
+        else:
+            for i in range(ntime-1):
+                # FTCS method, eqn: 9.32
+                psi[i+1, :] = np.dot(coeff_ftcs, psi[i, :])
+
+    elif method == 'crank':
+        H = (1j * tau / (2*h_bar)) * make_tridiagonal(nspace, H_const, (-2 * H_const), H_const)
+
+        coeff_crank = np.dot()
+
+        for i in range(ntime):
+            psi[i, :] = np.dot(coeff_crank, psi[i-1, :])
         #Crank method, eqn: 9.40
         psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
+
+    else:
+        return 'No valid integration method was selected.'
 
     #intitializing these for now, they will contain more information later
     phi_x = 1
