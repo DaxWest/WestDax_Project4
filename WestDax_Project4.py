@@ -55,7 +55,7 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     :param length: size of spatial grid. Default is 200 (-100 to +100)
     :param potential: a 1D array of the spatial index values for which the potential must be V(x)=1
     :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
-    :return: a 2D array containing phi_x, phi_t and, prob which are all 1D arrays
+    :return: a 2D array containing psi, psi_x, psi_t and, prob which are all 1D arrays
     '''
     h_bar = 1
     m = 1 / 2
@@ -91,45 +91,43 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
         coeff_crank = np.dot()
 
         for i in range(ntime):
+            # Crank method, eqn: 9.40
             psi[i, :] = np.dot(coeff_crank, psi[i-1, :])
-        #Crank method, eqn: 9.40
-        psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
+        #psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
 
     else:
         return 'No valid integration method was selected.'
 
     #intitializing these for now, they will contain more information later
-    phi_x = 1
-    phi_t = 1
-    prob = 1
+    psi_x = x_position
+    psi_t = t_step
+    prob = np.abs(psi * np.conjugate(psi))
 
-    eqn_sol = np.array([[phi_x], [phi_t], [prob]])
+    eqn_sol = [psi, psi_x, psi_t, prob]
     return eqn_sol
 
-def sch_plot(x,t, P, output='psi', save=False):
+def sch_plot(sch_sol, output=['psi', 'prob'], save=[False, False]):
     '''
-
-    :param x: phi_x output from sch_eqn (a 1D array)
-    :param t: phi_t output from sch_eqn (a 1D array)
-    :param P: prob output from sch_eqn (a 1D array)
+    :param sch_sol: the solution to the schrodinger equation in a list of arrays (psi, psi_x, psi_t, prob)
     :param output: takes a str ('psi' or 'prob') which designates the output of the function
     :param save: allows the user to choose to save the figure when set as True. Default False.
     :return: psi (plot of the real part of the schrodinger function) or prob (plot of the particle probability density)
     '''
 
-    x_pos = x
-    t_val = t
-    prob_density = P
+    psi, x_pos, t_val, prob = sch_sol[0], sch_sol[1], sch_sol[2], sch_sol[3]
 
-    if output == 'psi':
+    if output[0] == 'psi':
         #this is the real portion
-        if save == True:
-            figure = plt.savefig()
+        if save[0] == True:
+            figure1 = plt.savefig()
 
-    elif output == 'prob':
+    elif output[1] == 'prob':
         #probablity density
-        if save == True:
-            figure = plt.savefig()
+        if save[1] == True:
+            figure2 = plt.savefig()
 
-    return figure
+    else:
+        return 'No figure produced.'
+
+    return 'Figure(s) saved under given name as png.'
 
