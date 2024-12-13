@@ -24,7 +24,7 @@ def make_tridiagonal(N, b, d, a):
 #from lab 10
 def spectral_radius(matrix):
     '''
-    :param matrix:
+    :param matrix:takes a matrix and returns its maximum eigen values
     :return:
     '''
 
@@ -35,7 +35,7 @@ def spectral_radius(matrix):
 
 def make_initialcond(wparam, x_position):
     '''
-    :param wparam:
+    :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
     :param x_position:
     :return:
     '''
@@ -54,20 +54,34 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     :param method: Default 'ftcs', takes strings: 'ftcs' or 'crank'
     :param length: size of spatial grid. Default is 200 (-100 to +100)
     :param potential: a 1D array of the spatial index values for which the potential must be V(x)=1
-    :param wparam: list of parameters for initial conditions in the form [sigma0, x0, k0]
+    :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
     :return: a 2D array containing phi_x, phi_t and, prob which are all 1D arrays
     '''
+    h_bar = 1
+    m = 1 / 2
+    t_init = 0
 
     sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
     x_position = np.linspace(-length/2, length/2, nspace, endpoint=False)
+    t_step = np.arange(t_init, ntime*tau, tau)
+    step = length / (nspace-1)
+    H_const = -(h_bar**2) / (2 * m * (step**2)) #for use in Hamiltonian
+    identity = np.identity(nspace)
+
+    psi_shape = (ntime, nspace)
+    psi_intital = make_initialcond(wparam, x_position)
+    psi = np.zeros(shape=psi_shape, dtype=complex)
+    psi[0, :] = psi_intital
 
     if method == 'ftcs':
+        H = (1j * tau / h_bar) * make_tridiagonal(nspace, H_const, (1 - (2 * H_const)), H_const)
         #FTCS method, eqn: 9.32
-        phi_n_1 = (np.identity() - (1j * tau / h_bar) * H) * phi_n
+        psi_n_1 = (identity - (1j * tau / h_bar) * H) * psi_n
 
     if method == 'crank':
+        H = make_tridiagonal(nspace, H_const, (-2 * H_const), H_const)
         #Crank method, eqn: 9.40
-        phi_n_1 = (np.identity() + (1j * tau / (2*h_bar)) * H)**(-1) * (np.identity() - (1j * tau / (2*h_bar)) * H) * phi_n
+        psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
 
     #intitializing these for now, they will contain more information later
     phi_x = 1
