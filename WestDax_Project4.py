@@ -44,8 +44,8 @@ def spectral_radius(matrix):
 def make_initialcond(wparam, x_position):
     '''
     :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
-    :param x_position:
-    :return:
+    :param x_position: ndarray of the space of the system
+    :return: the initial value of the wavepacket
     '''
     sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
     x_i = x_position
@@ -61,15 +61,13 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     :param tau: time step
     :param method: Default 'ftcs', takes strings: 'ftcs' or 'crank'
     :param length: size of spatial grid. Default is 200 (-100 to +100)
-    :param potential: a 1D array of the spatial index values for which the potential must be V(x)=1
-    :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
+    :param potential: 1D array of the spatial index values for which the potential must be V(x)=1
+    :param wparam: list of parameters for initial conditions in the form [sigma0, x0, k0]
     :return: a 2D array containing psi, psi_x, psi_t and, prob which are all 1D arrays
     '''
     h_bar = 1
     m = 1 / 2
-    t_init = 0
 
-    sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
     x_position = np.linspace(-length / 2, length / 2, nspace, endpoint=False)
     t_step = np.arange(0, ntime * tau, tau)
     step = length / (nspace - 1)
@@ -87,11 +85,11 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
         check = spectral_radius(H)
         print(check)
         # this method needs a stability check
-        if check > 1:
-            return 'Solution will not be stable.'
+        if check-1 > 1e-10:
+            raise ValueError('Solution will not be stable.')
         else:
             for i in range(ntime - 1):
-                # FTCS method, eqn: 9.32ftcs
+                # FTCS method, eqn: 9.32 ftcs
                 psi[i + 1, :] = np.dot(coeff_ftcs, psi[i, :])
 
     elif method == 'crank':
@@ -101,16 +99,14 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
         for i in range(1, ntime):
             # Crank method, eqn: 9.40
             psi[i, :] = np.dot(coeff_crank, psi[i - 1, :])
-        # psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
 
     else:
-        return 'No valid integration method was selected.'
+        raise ValueError('No valid integration method was selected.')
 
     # intitializing these for now, they will contain more information later
     psi_x = x_position
     psi_t = t_step
     prob = np.abs(psi * np.conjugate(psi))
-    # print(psi.shape)
     eqn_sol = [psi, psi_x, psi_t, prob]
     return eqn_sol
 
@@ -140,7 +136,7 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
         if save[0] == True:
             plt.savefig(f'{file_name[0]}.png')
 
-    elif output[1] == 'prob':
+    if output[1] == 'prob':
         # probablity density
         fig2 = plt.figure()
         for i, T in enumerate(t_val):
@@ -155,14 +151,17 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
             plt.savefig(f'{file_name[1]}.png')
 
     else:
-        return 'No figures produced.'
+        return print('No figures produced.')
 
-    return 'Figure(s) saved under given name as png.'
+    if save[0] or save[1] == True:
+        return print('Figure(s) saved under given name as png.')
+    else:
+        return print('Plotting complete, process finished.')
 
 #user inputs
-nspace = 500 #int(input('Choose the number of spatial grid points to be used (function works for nspace = 500): '))
+nspace = 30 #int(input('Choose the number of spatial grid points to be used (function works for nspace = 30): '))
 ntime = 500 #int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
-tau = 0.1 #float(input('Choose time step to be used (function works for tau = 0.01): '))
+tau = 0.1 #float(input('Choose time step to be used (function works conditionally for |tau| < 1 when method = 'ftcs', unconditionally when method = 'crank'): '))
 length = 200 #int(input('Choose width of solution (function works for length = 200): '))
 
 method_choice = str(input('Choose a solution method- FTCS, Crank-Nicholson: '))
