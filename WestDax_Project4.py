@@ -7,7 +7,7 @@ h_bar = 1
 m = 1/2
 t_init = 0
 
-#from lab 10
+#from lab 10 originally, had to modify because it was not working properly
 def make_tridiagonal(N, b, d, a):
     '''
     :param N:
@@ -16,8 +16,16 @@ def make_tridiagonal(N, b, d, a):
     :param a:
     :return:
     '''
+    matrix = np.zeros((N, N))
 
-    matrix = d*np.identity(N)+a*np.diagflat(np.ones(N-1),1)+b*np.diagflat(np.ones(N-1),-1)
+    b_matrix = b * np.eye(N, k=-1)
+    d_matrix = d * np.eye(N, k=0)
+    a_matrix = a * np.eye(N, k=1)
+
+    matrix = matrix + b_matrix + d_matrix + a_matrix
+
+    matrix[0, -1] = b
+    matrix[-1, 0] = a
 
     return matrix
 
@@ -184,5 +192,4 @@ for i in range(2):
         file_name[i] = file_choice
 
 schrodinger_solution = sch_eqn(nspace, ntime, tau, method, length)
-# print(schrodinger_solution)
 plotting = sch_plot(schrodinger_solution, output, save, file_name)
