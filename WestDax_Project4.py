@@ -10,10 +10,10 @@ t_init = 0
 #from lab 10 originally, had to modify because it was not working properly
 def make_tridiagonal(N, b, d, a):
     '''
-    :param N:
-    :param b:
-    :param d:
-    :param a:
+    :param N: integer, sets the dimensions of the returned matrix
+    :param b: integer, value in position one below the diagonal
+    :param d: integer, value in position of the diagonal
+    :param a: integer, value in position one above the diagonal
     :return:
     '''
     matrix = np.zeros((N, N))
@@ -83,7 +83,6 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
         H = (1j * tau / h_bar) * make_tridiagonal(nspace, H_const, (1 - (2 * H_const)), H_const)
         coeff_ftcs = identity - H
         check = spectral_radius(H)
-        print(check)
         # this method needs a stability check
         if check-1 > 1e-10:
             raise ValueError('Solution will not be stable.')
@@ -112,11 +111,11 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
 
 def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi_plot', 'prob_plot']):
     '''
-    :param sch_sol:
-    :param output:
-    :param save:
-    :param file_name:
-    :return:
+    :param sch_sol: the sch_equ function results to be plotted
+    :param output: a list, decides which of the two plots (both, one or, neither) will be produced. Default is to produce both
+    :param save: a list, decides which of the two plots (both, one or, neither) will be saved. Default is to save both
+    :param file_name: a list, sets the file name under which the plots will be saved. Default is 'psi_plot', 'prob_plot'
+    :return: produces plots (if any) and saves those plots  as ‘.png’ (if desired).
     '''
 
     psi, x_pos, t_val, prob = sch_sol[0], sch_sol[1], sch_sol[2], sch_sol[3]
@@ -158,11 +157,11 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
     else:
         return print('Plotting complete, process finished.')
 
-#user inputs
-nspace = 30 #int(input('Choose the number of spatial grid points to be used (function works for nspace = 30): '))
-ntime = 500 #int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
-tau = 0.1 #float(input('Choose time step to be used (function works conditionally for |tau| < 1 when method = 'ftcs', unconditionally when method = 'crank'): '))
-length = 200 #int(input('Choose width of solution (function works for length = 200): '))
+#user inputs for testing
+nspace = int(input('Choose the number of spatial grid points to be used (function works for nspace = 30): '))
+ntime = int(input('Choose the number of time steps to be evolved (function works for ntime = 500): '))
+tau = float(input('Choose time step to be used (function works conditionally for |tau| < 1 when method =ftcs, unconditionally when method =crank): '))
+length = int(input('Choose width of solution (function works for length = 200): '))
 
 method_choice = str(input('Choose a solution method- FTCS, Crank-Nicholson: '))
 if 'ftcs' in method_choice.lower():
