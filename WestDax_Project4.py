@@ -33,12 +33,12 @@ def make_tridiagonal(N, b, d, a):
 def spectral_radius(matrix):
     '''
     :param matrix:takes a matrix and returns its maximum eigen values
-    :return:
+    :return: maximum magnitude of eigen values
     '''
 
     eigen = np.linalg.eig(matrix)
-
-    return np.max(np.abs(eigen[0]))
+    max_eigen = np.max(np.abs(eigen[0]))
+    return max_eigen
 
 
 def make_initialcond(wparam, x_position):
@@ -70,10 +70,10 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     t_init = 0
 
     sigma0, x0, k0 = wparam[0], wparam[1], wparam[2]
-    x_position = np.linspace(-length/2, length/2, nspace, endpoint=False)
-    t_step = np.arange(t_init, ntime*tau, tau)
-    step = length / (nspace-1)
-    H_const = -(h_bar**2) / (2 * m * (step**2)) #for use in Hamiltonian
+    x_position = np.linspace(-length / 2, length / 2, nspace, endpoint=False)
+    t_step = np.arange(0, ntime * tau, tau)
+    step = length / (nspace - 1)
+    H_const = -(h_bar ** 2) / (2 * m * (step ** 2))  # for use in Hamiltonian
     identity = np.identity(nspace)
 
     psi_shape = (ntime, nspace)
@@ -84,47 +84,54 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
     if method == 'ftcs':
         H = (1j * tau / h_bar) * make_tridiagonal(nspace, H_const, (1 - (2 * H_const)), H_const)
         coeff_ftcs = identity - H
-
-        #this method needs a stability check
-        if spectral_radius(coeff_ftcs) > 1:
+        check = spectral_radius(H)
+        print(check)
+        # this method needs a stability check
+        if check > 1:
             return 'Solution will not be stable.'
         else:
-            for i in range(ntime-1):
-                # FTCS method, eqn: 9.32
-                psi[i+1, :] = np.dot(coeff_ftcs, psi[i, :])
+            for i in range(ntime - 1):
+                # FTCS method, eqn: 9.32ftcs
+                psi[i + 1, :] = np.dot(coeff_ftcs, psi[i, :])
 
     elif method == 'crank':
-        H = (1j * tau / (2*h_bar)) * make_tridiagonal(nspace, H_const, (-2 * H_const), H_const)
+        H = (1j * tau / (2 * h_bar)) * make_tridiagonal(nspace, H_const, (-2 * H_const), H_const)
         coeff_crank = np.dot(np.linalg.inv(identity + H), identity - H)
 
-        for i in range(ntime):
+        for i in range(1, ntime):
             # Crank method, eqn: 9.40
-            psi[i, :] = np.dot(coeff_crank, psi[i-1, :])
-        #psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
+            psi[i, :] = np.dot(coeff_crank, psi[i - 1, :])
+        # psi_n_1 = (identity + (1j * tau / (2*h_bar)) * H)**(-1) * (identity - (1j * tau / (2*h_bar)) * H) * phi_n
 
     else:
         return 'No valid integration method was selected.'
 
-    #intitializing these for now, they will contain more information later
+    # intitializing these for now, they will contain more information later
     psi_x = x_position
     psi_t = t_step
     prob = np.abs(psi * np.conjugate(psi))
-
+    # print(psi.shape)
     eqn_sol = [psi, psi_x, psi_t, prob]
     return eqn_sol
 
 def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi_plot', 'prob_plot']):
-    ''''''
+    '''
+    :param sch_sol:
+    :param output:
+    :param save:
+    :param file_name:
+    :return:
+    '''
 
-    psi, x_pos, t_val, prob = np.real(sch_sol[0]), sch_sol[1], sch_sol[2], np.real(sch_sol[3])
-    enum = len(sch_sol[0])/5
+    psi, x_pos, t_val, prob = sch_sol[0], sch_sol[1], sch_sol[2], sch_sol[3]
+    enum = len(sch_sol[0]) / 5
 
     if output[0] == 'psi':
-        #this is the real portion
+        # this is the real portion
         figure1 = plt.figure()
-        for i,T in enumerate(t_val):
+        for i, T in enumerate(t_val):
             if i % enum == 0:
-                plt.plot(x_pos, psi[i])
+                plt.plot(x_pos, np.real(psi[i]))
         plt.title('Test')
         plt.xlabel('Test')
         plt.ylabel('Test')
@@ -134,9 +141,9 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
             plt.savefig(f'{file_name[0]}.png')
 
     elif output[1] == 'prob':
-        #probablity density
+        # probablity density
         fig2 = plt.figure()
-        for i,T in enumerate(t_val):
+        for i, T in enumerate(t_val):
             if i % enum == 0:
                 plt.plot(x_pos, prob[i])
         plt.title('Test')
