@@ -10,6 +10,8 @@ t_init = 0
 #from lab 10 originally, had to modify because it was not working properly
 def make_tridiagonal(N, b, d, a):
     '''
+    Forms a tri-diagonal matrix of size N x N given three values b, d, a which make up the below diagonal, diagonal and above diagonal values respectively.\
+
     :param N: integer, sets the dimensions of the returned matrix
     :param b: integer, value in position one below the diagonal
     :param d: integer, value in position of the diagonal
@@ -32,6 +34,8 @@ def make_tridiagonal(N, b, d, a):
 #from lab 10
 def spectral_radius(matrix):
     '''
+    Returns the maximum value of the magnitude of the eigenvalues for a given matrix.
+
     :param matrix:takes a matrix and returns its maximum eigen values
     :return: maximum magnitude of eigen values
     '''
@@ -43,6 +47,8 @@ def spectral_radius(matrix):
 
 def make_initialcond(wparam, x_position):
     '''
+    A function which returns the initial conditions of a system in the form of a Gaussian wave packet at time t=0 given some initial values. Return is complex.
+
     :param wparam: 1D array of parameters for initial conditions in the form [sigma0, x0, k0]
     :param x_position: ndarray of the space of the system
     :return: the initial value of the wavepacket
@@ -56,6 +62,8 @@ def make_initialcond(wparam, x_position):
 
 def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=[10, 0, 0.5]):
     '''
+    Solves the one-dimensional, time-dependent Schrodinger equation using the explicit Forward-Time, Central-Space (FTCS) or the Crank-Nicolson scheme.
+
     :param nspace: number of spatial grid points
     :param ntime: number of time steps to be evolved
     :param tau: time step
@@ -111,6 +119,8 @@ def sch_eqn(nspace, ntime, tau, method='ftcs', length=200, potential=[], wparam=
 
 def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi_plot', 'prob_plot']):
     '''
+    Plots the results of the solution to the one-dimensional, time-dependent Schrodinger equation and/or the total probability depending on the given optional values. Offers options to automatically save plots.
+
     :param sch_sol: the sch_equ function results to be plotted
     :param output: a list, decides which of the two plots (both, one or, neither) will be produced. Default is to produce both
     :param save: a list, decides which of the two plots (both, one or, neither) will be saved. Default is to save both
