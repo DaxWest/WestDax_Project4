@@ -133,13 +133,13 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
 
     if output[0] == 'psi':
         # this is the real portion
-        figure1 = plt.figure()
+        fig1 = plt.figure(figsize=(8,6))
         for i, T in enumerate(t_val):
             if i % enum == 0:
                 plt.plot(x_pos, np.real(psi[i]))
-        plt.title('Test')
-        plt.xlabel('Test')
-        plt.ylabel('Test')
+        plt.title('Schrodinger Wave Equation Results')
+        plt.xlabel('Position (x)')
+        plt.ylabel(r'$\psi$ (x, t)')
         plt.show()
 
         if save[0] == True:
@@ -147,13 +147,13 @@ def sch_plot(sch_sol, output=['psi', 'prob'], save=[True, True], file_name=['psi
 
     if output[1] == 'prob':
         # probablity density
-        fig2 = plt.figure()
+        fig2 = plt.figure(figsize=(8,6))
         for i, T in enumerate(t_val):
             if i % enum == 0:
                 plt.plot(x_pos, prob[i])
-        plt.title('Test')
-        plt.xlabel('Test')
-        plt.ylabel('Test')
+        plt.title('Particle Probability Density')
+        plt.xlabel('Position (x)')
+        plt.ylabel(r'$|\psi|^{2}$ (x, t)')
         plt.show()
 
         if save[1] == True:
